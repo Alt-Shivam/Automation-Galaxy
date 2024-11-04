@@ -1,0 +1,5 @@
+# More Repos can be added, as per requirement.
+[submodule "deps/k8s"]
+	path = deps/k8s
+	url = https://github.com/Alt-Shivam/rancher-k8s.git
+	branch = master
