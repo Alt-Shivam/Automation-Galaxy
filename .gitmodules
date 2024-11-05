@@ -3,3 +3,7 @@
 	path = deps/k8s
 	url = https://github.com/Alt-Shivam/rancher-k8s.git
 	branch = main
+[submodule "deps/docker"]
+	path = deps/docker
+	url = https://github.com/Alt-Shivam/ContainerRuntime.git
+	branch = main
