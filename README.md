@@ -28,7 +28,7 @@ Options:
 ```
 docker run --rm -it --network host \
     -v ~/.ssh:/root/.ssh:ro \
-    ansible-galaxy:latest pingall --username=core --host-ip=192.168.100.89
+    shivankcoredge/ansible-galaxy:latest pingall --username=core --host-ip=192.168.100.89
 ```
 
 ## Install Packages required for setup
