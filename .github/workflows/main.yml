@@ -14,9 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the code
+    # Checkout the code recursively
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        submodules: recursive  # Clone submodules recursively
 
     # Set up Docker Buildx
     - name: Set up Docker Buildx
