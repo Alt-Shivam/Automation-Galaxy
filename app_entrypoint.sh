@@ -5,7 +5,7 @@
 
 # Print usage instructions
 usage() {
-    echo "Usage: docker run ansible-galaxy:latest <command> --username=<username>"
+    echo "Usage: docker run ansible-galaxy:latest <command> --username=<username> [--host-ip=<host_ip>]"
     echo ""
     echo "Available commands:"
     echo "  pingall         - Ping all hosts in the inventory."
@@ -16,6 +16,7 @@ usage() {
     echo ""
     echo "Options:"
     echo "  --username=<username>  Specify the username for the host machine."
+    echo "  --host-ip=<host_ip>    Optionally specify the host machine's IP address."
     exit 1
 }
 
@@ -28,11 +29,16 @@ fi
 COMMAND=$1
 shift
 USERNAME=""
+HOST_IP=""
 
 for arg in "$@"; do
     case $arg in
         --username=*)
             USERNAME="${arg#*=}"
+            shift
+            ;;
+        --host-ip=*)
+            HOST_IP="${arg#*=}"
             shift
             ;;
         *)
@@ -48,19 +54,26 @@ if [ -z "$USERNAME" ]; then
     usage
 fi
 
-# Fetch the host IP dynamically
-HOST_IP=$(ip route | awk '/default/ { print $3 }')
+# # Detect host IP if not provided
+# if [ -z "$HOST_IP" ]; then
+#     HOST_IP=$(ip route | awk '/default/ { print $3 }')
+#     if [ -z "$HOST_IP" ]; then
+#         echo "Error: Unable to detect host IP."
+#         exit 1
+#     fi
+# fi
+
+echo "Using Host IP: ${HOST_IP}"
 
 # Generate the hosts.ini file dynamically
 HOSTS_FILE="/automation-galaxy/hosts.ini"
 echo "[all]" > $HOSTS_FILE
-echo "localhost ansible_host=${HOST_IP} ansible_user=${USERNAME} ansible_connection=local" >> $HOSTS_FILE
+echo "${HOST_IP} ansible_host=${HOST_IP} ansible_user=${USERNAME} ansible_connection=ssh" >> $HOSTS_FILE
 echo "" >> $HOSTS_FILE
 echo "[master_nodes]" >> $HOSTS_FILE
-echo "localhost" >> $HOSTS_FILE
+echo "${HOST_IP}" >> $HOSTS_FILE
 echo "" >> $HOSTS_FILE
 echo "[worker_nodes]" >> $HOSTS_FILE
-# Add any worker nodes dynamically if required here
 
 # Define paths
 ROOT_DIR="/automation-galaxy"

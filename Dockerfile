@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ansible=2.10.7* \
     make \
     python3-pip \
+    iproute2 \
     sshpass \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -22,6 +23,9 @@ COPY . .
 # Add the entrypoint script
 COPY app_entrypoint.sh /usr/local/bin/app_entrypoint.sh
 RUN chmod +x /usr/local/bin/app_entrypoint.sh
+
+# Ensure SSH keys are mounted
+RUN mkdir -p /root/.ssh
 
 # Set the entrypoint for the container
 ENTRYPOINT ["/usr/local/bin/app_entrypoint.sh"]

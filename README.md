@@ -1,6 +1,36 @@
 # Automation-Galaxy
 General purpose Automation Ansible playbooks triggered by Make
 
+## The Instant way
+### Pre-requisites
+- Make sure docker installed on the system.
+- pub key added to remote VM for ssh access.
+### Run playbook
+- To see the options available
+```
+core@noded39:~$ docker run --rm ansible-galaxy:latest
+```
+```
+Usage: docker run ansible-galaxy:latest <command> --username=<username> [--host-ip=<host_ip>]
+
+Available commands:
+  pingall         - Ping all hosts in the inventory.
+  k8s-install     - Install Kubernetes components.
+  k8s-uninstall   - Uninstall Kubernetes components.
+  install         - QuickStart installation.
+  uninstall       - QuickStart uninstallation.
+
+Options:
+  --username=<username>  Specify the username for the host machine.
+  --host-ip=<host_ip>    Optionally specify the host machine's IP address.
+```
+- To run a task
+```
+docker run --rm -it --network host \
+    -v ~/.ssh:/root/.ssh:ro \
+    ansible-galaxy:latest pingall --username=core --host-ip=192.168.100.89
+```
+
 ## Install Packages required for setup
 - Ubuntu 22
 ```bash
