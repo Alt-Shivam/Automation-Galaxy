@@ -1,0 +1,44 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up Docker Buildx
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    # Log in to DockerHub (optional if you want to push to a registry)
+    - name: Log in to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # Build and tag the Docker image
+    - name: Build and Tag Docker Image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: Dockerfile
+        push: true 
+        tags: ${{ secrets.DOCKER_USERNAME }}/ansible-galaxy:latest
+
+    # Verify Docker image build
+    - name: Test Docker Image (optional)
+      run: |
+        docker run --rm ${{ secrets.DOCKER_USERNAME }}/ansible-galaxy:latest ansible --version
