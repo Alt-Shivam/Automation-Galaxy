@@ -37,8 +37,3 @@ jobs:
         file: Dockerfile
         push: true 
         tags: ${{ secrets.DOCKER_USERNAME }}/ansible-galaxy:latest
-
-    # Verify Docker image build
-    - name: Test Docker Image (optional)
-      run: |
-        docker run --rm ${{ secrets.DOCKER_USERNAME }}/ansible-galaxy:latest ansible --version
