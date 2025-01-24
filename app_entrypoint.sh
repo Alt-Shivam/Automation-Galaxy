@@ -5,7 +5,7 @@
 
 # Print usage instructions
 usage() {
-    echo "Usage: docker run ansible-galaxy:latest <command> --username=<username> [--host-ip=<host_ip>]"
+    echo "Usage: docker run ansible-galaxy:latest <command> --username=<username> [--host-ip=<host_ip>] [--sudo-pass=<password>]"
     echo ""
     echo "Available commands:"
     echo "  pingall         - Ping all hosts in the inventory."
@@ -17,6 +17,7 @@ usage() {
     echo "Options:"
     echo "  --username=<username>  Specify the username for the host machine."
     echo "  --host-ip=<host_ip>    Optionally specify the host machine's IP address."
+    echo "  --sudo-pass=<password> Specify the sudo password for privileged commands."
     exit 1
 }
 
@@ -30,6 +31,7 @@ COMMAND=$1
 shift
 USERNAME=""
 HOST_IP=""
+SUDO_PASS=""
 
 for arg in "$@"; do
     case $arg in
@@ -39,6 +41,10 @@ for arg in "$@"; do
             ;;
         --host-ip=*)
             HOST_IP="${arg#*=}"
+            shift
+            ;;
+        --sudo-pass=*)
+            SUDO_PASS="${arg#*=}"
             shift
             ;;
         *)
@@ -54,21 +60,27 @@ if [ -z "$USERNAME" ]; then
     usage
 fi
 
-# # Detect host IP if not provided
-# if [ -z "$HOST_IP" ]; then
-#     HOST_IP=$(ip route | awk '/default/ { print $3 }')
-#     if [ -z "$HOST_IP" ]; then
-#         echo "Error: Unable to detect host IP."
-#         exit 1
-#     fi
-# fi
+# Validate the sudo password
+if [ -z "$SUDO_PASS" ]; then
+    echo "Error: Sudo password not provided."
+    usage
+fi
+
+# Detect host IP if not provided
+if [ -z "$HOST_IP" ]; then
+    HOST_IP=$(ip route | awk '/default/ { print $3 }')
+    if [ -z "$HOST_IP" ]; then
+        echo "Error: Unable to detect host IP."
+        exit 1
+    fi
+fi
 
 echo "Using Host IP: ${HOST_IP}"
 
 # Generate the hosts.ini file dynamically
 HOSTS_FILE="/automation-galaxy/hosts.ini"
 echo "[all]" > $HOSTS_FILE
-echo "${HOST_IP} ansible_host=${HOST_IP} ansible_user=${USERNAME} ansible_connection=ssh" >> $HOSTS_FILE
+echo "${HOST_IP} ansible_host=${HOST_IP} ansible_user=${USERNAME} ansible_connection=ssh ansible_become_pass=${SUDO_PASS}" >> $HOSTS_FILE
 echo "" >> $HOSTS_FILE
 echo "[master_nodes]" >> $HOSTS_FILE
 echo "${HOST_IP}" >> $HOSTS_FILE
